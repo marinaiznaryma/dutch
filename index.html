@@ -1,0 +1,292 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="default">
+  <meta name="apple-mobile-web-app-title" content="Words">
+  <meta name="theme-color" content="#ffffff" media="(prefers-color-scheme: light)">
+  <meta name="theme-color" content="#131f24" media="(prefers-color-scheme: dark)">
+  <link rel="manifest" href="manifest.webmanifest">
+  <link rel="apple-touch-icon" href="icons/icon-180.png">
+  <link rel="icon" href="icons/icon.svg" type="image/svg+xml">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Nunito:wght@600;700;800;900&display=swap">
+  <link rel="stylesheet" href="styles.css">
+  <title>Words</title>
+</head>
+<body>
+  <header class="top">
+    <h1 id="title">Learn</h1>
+    <div class="chips">
+      <button class="chip chip-streak" id="streakChip" aria-label="Day streak">
+        <svg viewBox="0 0 24 24" width="24" height="24" aria-hidden="true"><path class="flame-outer" d="M12 2c.6 3.2 2.6 4.9 4.3 6.8C18 10.6 19 12.6 19 15a7 7 0 0 1-14 0c0-2.4 1-4 2.3-5.4.3 1.6 1.1 2.7 2.2 3.2C9 9 10 5.4 12 2z"/><path class="flame-inner" d="M12 12.5c.4 1.5 1.4 2.2 2 3 .5.7.8 1.4.8 2.2a2.8 2.8 0 0 1-5.6 0c0-1.2.6-2 1.4-2.8.2.6.5 1 .9 1.2-.2-1.4 0-2.6.5-3.6z"/></svg>
+        <span id="streakNum">0</span>
+      </button>
+      <button class="chip chip-xp" id="xpChip" aria-label="Today's XP">
+        <svg viewBox="0 0 28 28" width="26" height="26" aria-hidden="true">
+          <circle cx="14" cy="14" r="12" class="ring-track"/>
+          <circle cx="14" cy="14" r="12" class="ring-fill" id="xpRing" pathLength="100" stroke-dasharray="0 100" transform="rotate(-90 14 14)"/>
+          <path class="bolt" d="M15.5 6.5 9 15h4.5l-1 6.5L19 13h-4.5z"/>
+        </svg>
+        <span id="xpNum">0</span>
+      </button>
+    </div>
+  </header>
+
+  <main>
+    <!-- Study -->
+    <section id="view-study" class="view active">
+      <div class="study-bar">
+        <select id="deckSelect" class="pill-select" aria-label="Deck"></select>
+        <div class="counts" id="counts"></div>
+      </div>
+
+      <div class="mode-switch" id="modeSwitch" role="radiogroup" aria-label="Show first">
+        <button role="radio" data-dir="reverse">Translation first</button>
+        <button role="radio" data-dir="forward">Word first</button>
+      </div>
+
+      <div id="studyArea">
+        <div class="progress-row">
+          <div class="progress" aria-hidden="true"><div class="progress-fill" id="progressFill"></div></div>
+          <div class="combo" id="combo" hidden></div>
+        </div>
+
+        <div class="buddy">
+          <div class="mascot-slot" id="mascotSlot"></div>
+          <div class="bubble" id="bubble" aria-live="polite"></div>
+        </div>
+
+        <div class="card-scene" id="cardScene">
+          <div id="card" class="card" role="button" tabindex="0" aria-label="Flashcard, tap to flip">
+            <div class="face face-front">
+              <div class="card-deck" id="frontDeck"></div>
+              <button class="speak" id="speakFront" aria-label="Pronounce word"><svg viewBox="0 0 24 24" width="22" height="22" aria-hidden="true"><path fill="currentColor" d="M3 10v4h4l5 4V6L7 10H3z"/><path fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" d="M16 9a4 4 0 0 1 0 6M18.5 6.5a8 8 0 0 1 0 11"/></svg></button>
+              <div class="card-front" id="cardFront"></div>
+              <div class="card-hint">Tap to flip</div>
+            </div>
+            <div class="face face-back">
+              <div class="card-deck" id="backDeck"></div>
+              <button class="speak" id="speakBack" aria-label="Pronounce word"><svg viewBox="0 0 24 24" width="22" height="22" aria-hidden="true"><path fill="currentColor" d="M3 10v4h4l5 4V6L7 10H3z"/><path fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" d="M16 9a4 4 0 0 1 0 6M18.5 6.5a8 8 0 0 1 0 11"/></svg></button>
+              <div class="card-asked" id="cardAsked"></div>
+              <div class="card-answer" id="cardAnswer"></div>
+              <div class="card-example" id="cardExample"></div>
+            </div>
+          </div>
+        </div>
+
+        <div class="actions">
+          <button id="revealBtn" class="btn3d btn-blue btn-block">Show answer</button>
+          <div class="grades" id="grades" hidden>
+            <button data-grade="0" class="btn3d g g-again">Again<small></small></button>
+            <button data-grade="1" class="btn3d g g-hard">Hard<small></small></button>
+            <button data-grade="2" class="btn3d g g-good">Good<small></small></button>
+            <button data-grade="3" class="btn3d g g-easy">Easy<small></small></button>
+          </div>
+        </div>
+      </div>
+
+      <div id="done" class="done" hidden>
+        <div class="mascot-slot mascot-big" id="doneMascot"></div>
+        <h2 id="doneTitle"></h2>
+        <p id="doneText"></p>
+        <div class="tiles" id="doneTiles"></div>
+        <button id="moreBtn" class="btn3d btn-green btn-block">Learn 10 more words</button>
+      </div>
+    </section>
+
+    <!-- Words -->
+    <section id="view-words" class="view">
+      <div class="tiles tiles-3" id="wordTiles"></div>
+      <div class="search-row">
+        <input id="search" class="search" type="search" placeholder="Search words" autocomplete="off">
+        <button id="syncBtn" class="btn3d btn-ghost icon-btn" aria-label="Sync words from sheet" title="Sync words">
+          <svg viewBox="0 0 24 24" width="22" height="22" aria-hidden="true"><path fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round" d="M20 11a8 8 0 0 0-14.3-4.9L4 8m0-5v5h5M4 13a8 8 0 0 0 14.3 4.9L20 16m0 5v-5h-5"/></svg>
+        </button>
+      </div>
+      <ul id="wordList" class="word-list"></ul>
+    </section>
+
+    <!-- Grammar -->
+    <section id="view-grammar" class="view">
+      <div id="gHome">
+        <button class="ex-card" id="startDeHet">
+          <span class="ex-icon"><span class="ex-de">de</span><span class="ex-het">het</span></span>
+          <span class="ex-text">
+            <span class="ex-title">De or het?</span>
+            <span class="ex-sub" id="deHetSub"></span>
+          </span>
+          <svg class="ex-go" viewBox="0 0 24 24" width="22" height="22" aria-hidden="true"><path d="m9 5 7 7-7 7" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/></svg>
+        </button>
+        <p class="help g-hint" id="gHint"></p>
+      </div>
+
+      <div id="gPlay" hidden>
+        <div class="g-top">
+          <button class="g-close" id="gClose" aria-label="Stop exercise">
+            <svg viewBox="0 0 24 24" width="22" height="22" aria-hidden="true"><path d="M6 6l12 12M18 6 6 18" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round"/></svg>
+          </button>
+          <div class="progress" aria-hidden="true"><div class="progress-fill" id="gProgress"></div></div>
+        </div>
+
+        <div class="buddy">
+          <div class="mascot-slot" id="gMascot"></div>
+          <div class="bubble" id="gBubble" aria-live="polite"></div>
+        </div>
+
+        <div class="g-question">
+          <div class="g-noun"><span class="g-art" id="gArt">___</span> <span id="gNoun"></span></div>
+          <div class="g-trans" id="gTrans"></div>
+        </div>
+
+        <div class="g-choices" id="gChoices">
+          <button class="btn3d g-choice" data-art="de">de</button>
+          <button class="btn3d g-choice" data-art="het">het</button>
+        </div>
+
+        <div class="g-feedback" id="gFeedback" hidden>
+          <div class="g-fb-title" id="gFbTitle"></div>
+          <div class="g-fb-text" id="gFbText"></div>
+          <button class="btn3d btn-block" id="gContinue">Continue</button>
+        </div>
+      </div>
+
+      <div id="gDone" class="done" hidden>
+        <div class="mascot-slot mascot-big" id="gDoneMascot"></div>
+        <h2 id="gDoneTitle"></h2>
+        <p id="gDoneText"></p>
+        <div class="tiles" id="gDoneTiles"></div>
+        <button id="gAgain" class="btn3d btn-green btn-block">Practise again</button>
+        <button id="gBack" class="btn3d btn-ghost btn-block g-back">Back</button>
+      </div>
+    </section>
+
+    <!-- Settings -->
+    <section id="view-settings" class="view">
+      <div class="group">
+        <label class="label" for="sheetUrl">Google Sheet link</label>
+        <input id="sheetUrl" class="input" type="url" inputmode="url" placeholder="https://docs.google.com/spreadsheets/d/…" autocomplete="off" autocapitalize="off" spellcheck="false">
+        <p class="help">Share the sheet as <b>Anyone with the link → Viewer</b> and paste its link. Columns: <code>word</code>, <code>translation</code>, optional <code>example</code> and <code>deck</code>. First row is the header. Separate side-by-side blocks with an empty column.</p>
+        <button id="saveSheet" class="btn3d btn-blue">Save &amp; sync</button>
+        <p class="help" id="lastSync"></p>
+      </div>
+
+      <div class="group">
+        <div class="row">
+          <label for="dailyGoal">Daily goal</label>
+          <select id="dailyGoal">
+            <option value="50">Casual · 50 XP</option>
+            <option value="100">Regular · 100 XP</option>
+            <option value="200">Serious · 200 XP</option>
+            <option value="300">Intense · 300 XP</option>
+          </select>
+        </div>
+        <div class="row">
+          <label for="direction">Show first</label>
+          <select id="direction">
+            <option value="reverse">Translation → word</option>
+            <option value="forward">Word → translation</option>
+          </select>
+        </div>
+        <div class="row">
+          <label for="newPerDay">New words per day</label>
+          <input id="newPerDay" type="number" min="0" max="200" inputmode="numeric">
+        </div>
+        <div class="row">
+          <label for="speechLang">Pronunciation</label>
+          <select id="speechLang"></select>
+        </div>
+        <div class="row">
+          <label for="sound">Sound effects</label>
+          <input id="sound" type="checkbox" class="switch" role="switch">
+        </div>
+      </div>
+
+      <div class="group">
+        <p class="label">Progress on this device</p>
+        <p class="help">Progress, streak and XP are stored on each device. Use export/import to move them between devices.</p>
+        <div class="btn-row">
+          <button id="exportBtn" class="btn3d btn-ghost">Export</button>
+          <label class="btn3d btn-ghost">Import<input id="importFile" type="file" accept="application/json,.json" hidden></label>
+          <button id="resetBtn" class="btn-text-danger">Reset</button>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <nav class="tabs" aria-label="Sections">
+    <button class="tab active" data-view="study">
+      <svg viewBox="0 0 28 28" width="30" height="30" aria-hidden="true"><rect x="9" y="4" width="15" height="19" rx="3.5" class="t-back"/><rect x="4" y="7" width="15" height="19" rx="3.5" class="t-front"/><path d="M8.5 19.5 11.5 12l3 7.5M9.6 17h3.8" class="t-line"/></svg>
+      <span>Learn</span>
+    </button>
+    <button class="tab" data-view="words">
+      <svg viewBox="0 0 28 28" width="30" height="30" aria-hidden="true"><rect x="4" y="4" width="20" height="21" rx="4" class="t-front"/><path d="M9 10h10M9 14.5h10M9 19h6" class="t-line"/></svg>
+      <span>Words</span>
+    </button>
+    <button class="tab" data-view="grammar">
+      <svg viewBox="0 0 28 28" width="30" height="30" aria-hidden="true"><rect x="3" y="7" width="11" height="15" rx="3" class="t-front"/><rect x="15" y="4" width="10" height="15" rx="3" class="t-back"/><path d="M6.5 15.5h4M18 12h4" class="t-line"/></svg>
+      <span>Grammar</span>
+    </button>
+    <button class="tab" data-view="settings">
+      <svg viewBox="0 0 28 28" width="30" height="30" aria-hidden="true"><path d="M5 9h11M22 9h1M5 19h4M15 19h8" class="t-line t-thick"/><circle cx="19" cy="9" r="3.5" class="t-front"/><circle cx="12" cy="19" r="3.5" class="t-back"/></svg>
+      <span>Settings</span>
+    </button>
+  </nav>
+
+  <div id="toast" class="toast" role="status" aria-live="polite"></div>
+
+  <!-- Kiko the rocking horse. Moods are switched with data-mood on the <svg>. -->
+  <template id="mascotTpl">
+    <svg class="mascot" data-mood="idle" viewBox="0 0 120 120" aria-hidden="true">
+      <ellipse cx="60" cy="110.5" rx="38" ry="4.5" class="m-shadow"/>
+      <g class="m-bob"><g class="m-body">
+        <!-- Silhouette traced from icons/61333.png; decorations below use the same grid. -->
+        <g transform="translate(7.5 13.5) scale(.9318) translate(-3.7 -15.6)">
+          <g transform="translate(3.7 15.6) scale(.22)">
+            <path d="M 413.5 51.1 C 388.4 54.4, 368.1 65.1, 356.6 81.3 C 350.9 89.5, 348.5 94.3, 340.6 114.3 C 330.8 139, 326 148, 317.7 156.7 L 313.7 160.9 317.3 168.2 C 339.3 213.2, 304.9 263.9, 252.1 264.1 C 229.7 264.2, 212.2 257.3, 197.4 242.5 C 184.9 230, 179.1 217, 178.3 199.3 L 177.7 188.1 172.1 186 C 137.4 173.1, 93.6 183, 61.7 211.1 L 57.9 214.5 74.2 231.7 L 90.4 248.9 95.5 244.4 C 109.7 231.8, 122 224.2, 136.1 219.5 C 146.8 215.8, 146.9 216.2, 138.4 225.3 C 108.1 257.5, 80.4 307.5, 59.3 368 C 56.4 376.5, 53.7 384.1, 53.5 384.8 C 52.9 386.3, 39.3 379.4, 30.6 373.3 C 28 371.4, 25.4 370.2, 25 370.7 C 24.6 371.1, 18.8 378.3, 12.1 386.7 L -0 401.9 5.2 405.8 C 55.4 442.7, 153 463.4, 268.2 461.7 C 367.4 460.3, 443.9 443.7, 497.2 412.1 C 503.9 408.1, 516.6 398.3, 512.4 400.4 C 511.7 400.7, 506.1 394.6, 499.5 386.2 C 493 378.1, 487.4 371.2, 487 370.7 C 486.7 370.3, 482.8 372.4, 478.4 375.2 C 466 383.4, 454.1 388.8, 452.9 387 C 441 368.1, 431.5 351.5, 425.6 339.5 C 392.9 273.1, 386.4 227.2, 407.1 208.6 C 416.3 200.3, 423.8 200.9, 437.5 210.9 C 446.3 217.4, 453.3 220, 463.6 220.7 L 471.8 221.3 473.8 215.8 C 488.9 175.5, 479.5 127.8, 449.6 92.8 L 443.1 85.2 439.4 67.6 L 435.6 50 428.1 50.1 C 423.9 50.2, 417.4 50.7, 413.5 51.1 M 227 312.6 C 177.2 319.3, 132.2 348.4, 98.7 395.8 C 96.2 399.4, 95.4 401.2, 96.2 401.5 C 99.8 402.8, 123.1 408.2, 134 410.4 C 212.7 425.8, 319.4 424.4, 394.2 406.9 L 402.9 404.8 398.8 399.2 C 367.1 355.8, 321.6 324.9, 274.9 314.9 C 265.6 312.9, 235.6 311.5, 227 312.6" fill-rule="evenodd" class="m-fur m-silhouette"/>
+            <path d="M 295 172.5 C 285.3 178.1, 265.1 181.6, 233.5 183 C 210.6 184, 197.4 185.8, 195.8 188.2 C 194.5 190.3, 194.9 202.2, 196.5 208.3 C 207.6 250.8, 270.2 261.2, 297.3 225.1 C 308.1 210.7, 310 192.1, 302.3 176.4 C 299.5 170.6, 298.9 170.3, 295 172.5" class="m-saddle m-silhouette"/>
+          </g>
+          <!-- openwork rocker -->
+          <g class="m-lace"><circle cx="18" cy="106.4" r="1.5"/><circle cx="25" cy="108.4" r="1.5"/><circle cx="32" cy="110.1" r="1.5"/><circle cx="39" cy="111.4" r="1.5"/><circle cx="46" cy="112.3" r="1.5"/><circle cx="53" cy="112.8" r="1.5"/><circle cx="60" cy="113" r="1.5"/><circle cx="67" cy="112.8" r="1.5"/><circle cx="74" cy="112.3" r="1.5"/><circle cx="81" cy="111.4" r="1.5"/><circle cx="88" cy="110.1" r="1.5"/><circle cx="95" cy="108.4" r="1.5"/><circle cx="102" cy="106.4" r="1.5"/></g>
+          <!-- lace garland, rosettes, tail dots -->
+          <path d="M32 79a2 2 0 0 0 4 0a2 2 0 0 0 4 0a2 2 0 0 0 4 0a2 2 0 0 0 4 0a2 2 0 0 0 4 0a2 2 0 0 0 4 0a2 2 0 0 0 4 0a2 2 0 0 0 4 0a2 2 0 0 0 4 0a2 2 0 0 0 4 0a2 2 0 0 0 4 0a2 2 0 0 0 4 0a2 2 0 0 0 4 0a2 2 0 0 0 4 0" class="m-lace"/>
+          <g class="m-lace-fill"><circle cx="34" cy="83" r=".7"/><circle cx="38" cy="83" r=".7"/><circle cx="42" cy="83" r=".7"/><circle cx="46" cy="83" r=".7"/><circle cx="50" cy="83" r=".7"/><circle cx="54" cy="83" r=".7"/><circle cx="58" cy="83" r=".7"/><circle cx="62" cy="83" r=".7"/><circle cx="66" cy="83" r=".7"/><circle cx="70" cy="83" r=".7"/><circle cx="74" cy="83" r=".7"/><circle cx="78" cy="83" r=".7"/><circle cx="82" cy="83" r=".7"/><circle cx="86" cy="83" r=".7"/><circle cx="33.6" cy="85.5" r="1.1"/><circle cx="32.3" cy="87.8" r="1.1"/><circle cx="29.7" cy="87.8" r="1.1"/><circle cx="28.4" cy="85.5" r="1.1"/><circle cx="29.7" cy="83.2" r="1.1"/><circle cx="32.3" cy="83.2" r="1.1"/><circle cx="89.6" cy="86" r="1.1"/><circle cx="88.3" cy="88.3" r="1.1"/><circle cx="85.7" cy="88.3" r="1.1"/><circle cx="84.4" cy="86" r="1.1"/><circle cx="85.7" cy="83.7" r="1.1"/><circle cx="88.3" cy="83.7" r="1.1"/></g>
+          <circle cx="31" cy="85.5" r="1.2" class="m-gold"/><circle cx="87" cy="86" r="1.2" class="m-gold"/>
+          <path d="M20.5 63.5Q29 58.5 38 57.3" class="m-lace-dots"/>
+          <!-- mane of little rings -->
+          <g class="m-ring"><circle cx="77" cy="50" r="2.4"/><circle cx="80.5" cy="42.5" r="2.4"/><circle cx="84" cy="36" r="2.4"/><circle cx="89" cy="31.5" r="2.4"/><circle cx="95" cy="30.5" r="2.4"/></g>
+          <g class="m-gold"><circle cx="77" cy="50" r=".8"/><circle cx="80.5" cy="42.5" r=".8"/><circle cx="84" cy="36" r=".8"/><circle cx="89" cy="31.5" r=".8"/><circle cx="95" cy="30.5" r=".8"/></g>
+          <!-- golden noseband -->
+          <path d="M97 51q5.5 2.5 11.2-1" class="m-bridle"/>
+          <circle cx="97" cy="51" r="1.1" class="m-gold"/>
+          <circle cx="91.5" cy="49.5" r="2.6" class="m-cheek"/>
+          <g class="m-eyes">
+            <ellipse cx="97" cy="42.5" rx="3.4" ry="3.8" class="m-white"/>
+            <g class="m-pupils">
+              <circle cx="97.8" cy="43" r="2.4" class="m-ink"/>
+              <circle cx="98.7" cy="42" r=".8" class="m-white"/>
+            </g>
+            <path d="M93.8 39.2q1.6-1.3 3.3-1.2M95.4 38.6l-.5-1.5M97.3 38.1l.1-1.6" class="m-lash"/>
+          </g>
+          <g class="m-eyes-happy"><path d="M94 43.5q3-4 6.2 0" class="m-stroke"/></g>
+          <path d="M93.5 37 99.8 38.6" class="m-stroke m-brows"/>
+          <ellipse cx="106" cy="55.5" rx="1.1" ry=".85" class="m-nose"/>
+          <path d="M100 59.5q3 2.2 6.5-.4" class="m-stroke m-mouth-smile"/>
+          <g class="m-mouth-open">
+            <path d="M99.5 58.8q4 1.2 7.5-1.3-.4 4.6-3.9 5.3-3.2.3-3.6-4z" class="m-mouth-in"/>
+            <ellipse cx="103" cy="61.2" rx="1.8" ry="1.1" class="m-tongue"/>
+          </g>
+          <path d="M100 61q3-2.2 6.5-.4" class="m-stroke m-mouth-sad"/>
+          <ellipse cx="103.5" cy="60" rx="1.4" ry="1.8" class="m-mouth-o"/>
+        </g>
+      </g></g>
+    </svg>
+  </template>
+
+  <script src="app.js"></script>
+</body>
+</html>
